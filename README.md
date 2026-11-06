@@ -66,6 +66,38 @@ Change events can arrive out of order. `SEQUENCE BY STRUCT(updated_at, booking_u
 Auto CDC put them back in order, with the update id breaking ties between changes made in the
 same second.
 
+## What the data showed
+
+First full run: 14 tables in about one minute on serverless compute, no failed expectations
+that stop the pipeline.
+
+**Payments.** 3,726 of 49,638 payment rows (7.5%) have an amount of zero or less and are
+dropped by the `amount_positive` expectation. Reconciling the remaining payments against the
+latest state of 48,000 bookings:
+
+| Result | Bookings | What it means |
+|---|---:|---|
+| `ok` | 32,794 | confirmed or completed and paid in full |
+| `cancelled_but_paid` | 2,928 | cancelled but still holding the full payment, so a refund is likely owed |
+| `due_not_paid` | 649 | confirmed or completed with no completed payment, 357,330 outstanding |
+| `not_due` | 11,353 | pending, or cancelled without payment |
+| `amount_mismatch` | 0 | every paid booking was paid the exact amount |
+
+**Booking lifecycle** (from the SCD Type 2 history):
+
+| Change | Bookings | Average time |
+|---|---:|---:|
+| pending → confirmed | 7,689 | 148 hours (about 6 days) |
+| pending → cancelled | 3,828 | 149 hours |
+| confirmed → cancelled | 1,498 | 132 hours |
+| confirmed → completed | 14,687 | 352 hours |
+
+A pending booking waits about six days whichever way it ends, and 3 in 10 pending bookings end
+cancelled. Shortening the time to confirm is the obvious lever.
+
+**Demand.** Phuket is the busiest destination (4,862 bookings, 1.91M booked revenue), followed
+by Mallorca, Gold Coast and Paris.
+
 ## Run it
 
 1. In Databricks, add this repository as a **Git folder** (Workspace → Create → Git folder).
