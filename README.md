@@ -5,7 +5,7 @@ A Lakeflow declarative pipeline on Databricks for **Wanderbricks**, a travel boo
 reviews, 18k properties in 42 destinations).
 
 The interesting part is the booking change log. Bookings move between states (pending,
-confirmed, cancelled) and every change arrives as an event. The pipeline turns that log into a
+confirmed, completed, cancelled) and every change arrives as an event. The pipeline turns that log into a
 full **SCD Type 2 history** with Auto CDC, then answers questions the current-state table can't:
 how bookings move between states, how long confirmation takes, and which bookings have the
 wrong amount of money against them.
@@ -44,7 +44,7 @@ flowchart LR
 | Silver | `silver_payments`, `silver_reviews` | materialized views | Valid payments; reviews that were not deleted |
 | Gold | `gold_destination_monthly` | materialized view | Bookings, revenue and cancellation rate by destination and month |
 | Gold | `gold_status_transitions` | materialized view | From-status → to-status counts and average hours between |
-| Gold | `gold_payment_reconciliation` | materialized view | Per booking: due, paid, and `ok` / `confirmed_not_paid` / `cancelled_but_paid` / `amount_mismatch` |
+| Gold | `gold_payment_reconciliation` | materialized view | Per booking: due, paid, and `ok` / `due_not_paid` / `cancelled_but_paid` / `amount_mismatch` / `not_due` |
 | Gold | `gold_property_performance` | materialized view | Per property: bookings, revenue, nights sold, cancellation rate, rating |
 
 ## Data quality

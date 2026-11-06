@@ -1,12 +1,12 @@
 CREATE OR REFRESH MATERIALIZED VIEW gold_property_performance
-COMMENT 'Per property: bookings, confirmed revenue, cancellation rate and guest rating'
+COMMENT 'Per property: bookings, booked revenue, cancellation rate and guest rating'
 AS WITH bk AS (
   SELECT
     property_id,
     count(*)                                                             AS bookings,
     count_if(status LIKE 'cancel%')                                      AS cancelled,
-    sum(CASE WHEN status = 'confirmed' THEN total_amount ELSE 0 END)     AS confirmed_revenue,
-    sum(CASE WHEN status = 'confirmed' THEN nights ELSE 0 END)           AS nights_sold
+    sum(CASE WHEN status IN ('confirmed', 'completed') THEN total_amount ELSE 0 END) AS booked_revenue,
+    sum(CASE WHEN status IN ('confirmed', 'completed') THEN nights ELSE 0 END) AS nights_sold
   FROM bookings_current
   GROUP BY property_id
 ),
@@ -24,7 +24,7 @@ SELECT
   p.base_price,
   h.is_verified                                   AS host_verified,
   coalesce(bk.bookings, 0)                        AS bookings,
-  coalesce(bk.confirmed_revenue, 0)               AS confirmed_revenue,
+  coalesce(bk.booked_revenue, 0)                  AS booked_revenue,
   coalesce(bk.nights_sold, 0)                     AS nights_sold,
   round(bk.cancelled / bk.bookings, 4)            AS cancellation_rate,
   rv.avg_rating,
