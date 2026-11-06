@@ -1,0 +1,20 @@
+# Databricks Asset Bundle. Deploy from the workspace (Git folder → Deploy) or with the CLI:
+#   databricks bundle deploy -t dev && databricks bundle run wanderbricks_lakehouse -t dev
+bundle:
+  name: wanderbricks-lakehouse
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Catalog that holds the pipeline schema
+    default: workspace
+  schema:
+    description: Schema the pipeline publishes to
+    default: wanderbricks_lakehouse
+
+targets:
+  dev:
+    mode: development
+    default: true

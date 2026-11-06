@@ -1,0 +1,6 @@
+resources:
+  schemas:
+    lakehouse:
+      catalog_name: ${var.catalog}
+      name: ${var.schema}
+      comment: Wanderbricks booking lakehouse built by a Lakeflow declarative pipeline

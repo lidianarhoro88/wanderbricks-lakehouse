@@ -1,0 +1,12 @@
+resources:
+  jobs:
+    wanderbricks_daily:
+      name: wanderbricks-daily-refresh
+      schedule:
+        quartz_cron_expression: "0 30 5 * * ?"
+        timezone_id: Europe/Istanbul
+        pause_status: PAUSED
+      tasks:
+        - task_key: refresh_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.wanderbricks_lakehouse.id}

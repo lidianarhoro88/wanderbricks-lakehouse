@@ -1,0 +1,12 @@
+resources:
+  pipelines:
+    wanderbricks_lakehouse:
+      name: wanderbricks-lakehouse
+      catalog: ${var.catalog}
+      schema: ${resources.schemas.lakehouse.name}
+      serverless: true
+      continuous: false
+      root_path: ../src
+      libraries:
+        - glob:
+            include: ../src/transformations/**
